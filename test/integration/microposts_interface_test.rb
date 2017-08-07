@@ -16,13 +16,16 @@ class MicropostsInterfaceTest < ActionDispatch::IntegrationTest
       post microposts_path, params: {micropost: {content: ""} }
     end
     assert_select 'div#error_explanation'
+    assert_select 'input[type="file"]'
 
     # valid post
     content = "This micropost really ties the room together"
+    picture = fixture_file_upload('test/fixtures/flower.jpg', 'image/jpg')
     assert_difference 'Micropost.count', 1 do
-      post microposts_path, params: {micropost: {content: content} }
+      post microposts_path, params: {micropost: {content: content, picture: picture} }
     end
-    assert_redirected_to root_url
+    assert assigns(:micropost).picture?
+#    assert_redirected_to root_url
     follow_redirect!
     assert_match content, response.body
 
